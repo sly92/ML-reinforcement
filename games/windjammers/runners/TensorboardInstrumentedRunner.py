@@ -177,7 +177,7 @@ if __name__ == "__main__":
     for agent1 in agentList:
         for agent2 in agentList2:
             for k in 1000, 10000, 100000, 1000000:
-                num_games = 1000
+                num_games = k
                 battle_name = agent1.__name__ + ' VS ' + agent2.__name__
                 score, round_sum_time, sum_action_duration = TensorboardInstrumentedRunner(agent1(),
                                                                                                     agent2(9,9),
