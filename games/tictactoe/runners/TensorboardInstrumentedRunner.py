@@ -190,7 +190,7 @@ if __name__ == "__main__":
     #                          print_and_reset_score_history_threshold=100).run(100000000000))
 
   #  agentList=[CommandLineAgent,DeepQLearningAgent,MOISMCTSWithRandomRolloutsExpertThenApprenticeAgent,MOISMCTSWithRandomRolloutsAgent,MOISMCTSWithValueNetworkAgent,PPOWithMultipleTrajectoriesMultiOutputsAgent,RandomAgent,RandomRolloutAgent,ReinforceClassicWithMultipleTrajectoriesAgent,ReinforceClassicAgent,TabularQLearningAgent]
-    agentList = [RandomRolloutAgent]
+    agentList = [RandomAgent]
     agentList2=[ReinforceClassicAgent, DeepQLearningAgent]
 
 
