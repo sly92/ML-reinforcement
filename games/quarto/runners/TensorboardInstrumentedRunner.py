@@ -6,8 +6,7 @@ from pprint import pprint
 
 import tensorflow as tf
 
-from agents.CommandLineAgent import CommandLineAgent
-from agents.RandomAgent import RandomAgent
+from agents import CommandLineAgent, RandomAgent
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
@@ -19,7 +18,6 @@ import numpy as np
 
 
 class TensorboardInstrumentedQuartoRunner(GameRunner):
-
     def __init__(self, agent1: Agent, agent2: Agent,
                  print_and_reset_score_history_threshold=None,
                  replace_player1_with_commandline_after_similar_results=None, log_dir_root="./logs/"):
@@ -147,6 +145,7 @@ if __name__ == "__main__":
 
     num_games = 1000
     battle_name = 'Random VS Random'
+
     score, round_sum_time, sum_action_duration = TensorboardInstrumentedQuartoRunner(RandomAgent(),
                                                                                      RandomAgent(),
                                                                                      log_dir_root="./logs/" + battle_name,

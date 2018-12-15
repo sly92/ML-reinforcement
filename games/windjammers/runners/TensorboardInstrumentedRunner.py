@@ -6,6 +6,8 @@ from pprint import pprint
 
 import tensorflow as tf
 
+from agents import CommandLineAgent
+
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
@@ -40,24 +42,23 @@ class TensorboardInstrumentedRunner(GameRunner):
             terminal = False
             round_time = 0.0
             round_step = 0
-            self.action_duration_sum = ([0.0, 0.0])
-            self.mean_action_duration = np.array((0.0, 0.0))
-            self.accumulated_reward_sum = ([0.0, 0.0])
-            action = 0
+            self.mean_action_duration = {0: 0.0, 1: 0.0}
+            self.action_duration_sum = {0: 0.0, 1: 0.0}
+            self.accumulated_reward_sum = {0: 0.0, 1: 0.0}
+
             while not terminal:
                 # sleep(0.016)
                 # print(gs)
                 round_time = time.time()
                 current_player = gs.get_current_player_id()
                 action = 0
-                action_ids = gs.get_available_actions_id_for_player(current_player)
-                info_state = gs.get_information_state_for_player(current_player)
                 if current_player != -1:
+                    action_ids = gs.get_available_actions_id_for_player(current_player)
+                    info_state = gs.get_information_state_for_player(current_player)
                     action_time = time.time()
                     action = self.agents[current_player].act(current_player,
                                                              info_state,
                                                              action_ids)
-
                     action_time = time.time() - action_time
                     self.action_duration_sum[current_player] += action_time
                 else:
@@ -128,7 +129,7 @@ class TensorboardInstrumentedRunner(GameRunner):
 
 
 if __name__ == "__main__":
-    num_games = 10
+    num_games = 100
     battle_name = 'Random VS Random'
     score, round_sum_time, sum_action_duration = TensorboardInstrumentedRunner(RandomAgent(),
                                                                                RandomAgent(),

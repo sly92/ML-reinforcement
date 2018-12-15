@@ -6,8 +6,7 @@ from pprint import pprint
 
 import tensorflow as tf
 
-from agents.CommandLineAgent import CommandLineAgent
-from agents.RandomAgent import RandomAgent
+from agents import CommandLineAgent, RandomAgent
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
