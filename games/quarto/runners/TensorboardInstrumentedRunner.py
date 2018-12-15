@@ -6,7 +6,8 @@ from pprint import pprint
 
 import tensorflow as tf
 
-from agents import CommandLineAgent, RandomAgent
+from agents import CommandLineAgent, DeepQLearningAgent, MOISMCTSWithRandomRolloutsExpertThenApprenticeAgent, MOISMCTSWithRandomRolloutsAgent, MOISMCTSWithValueNetworkAgent,PPOWithMultipleTrajectoriesMultiOutputsAgent,RandomAgent,RandomRolloutAgent, ReinforceClassicAgent,ReinforceClassicWithMultipleTrajectoriesAgent,TabularQLearningAgent
+
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
