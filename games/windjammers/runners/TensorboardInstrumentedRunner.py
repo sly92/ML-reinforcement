@@ -138,17 +138,16 @@ class TensorboardInstrumentedRunner(GameRunner):
                     # score_history = np.array((0, 0, 0.0))
         return tuple(self.score_history), self.round_duration_sum, self.mean_action_duration_sum
 
-
-    def createStats(self, score, bn, ng, mrt, mat1, mat2):
+    def createStats(self, a1, a2, score, bn, ng, mrt, mat1, mat2):
         print('Score :', score)
         game_stats = OrderedDict({
             'game': 'TicTacToe',
             'battle_name': bn,
             'num_of_games': ng,
-            'agent1_name': 'RCA',
+            'agent1_name': a1,
             'agent1_wins': score[0],
             'agent1_win_rate': (score[0] / ng) * 100,
-            'agent2_name': 'RCA',
+            'agent2_name': a2,
             'agent2_wins': score[1],
             'agent2_win_rate': (score[1] / ng) * 100,
             'draw_nb': score[2],
@@ -188,8 +187,10 @@ if __name__ == "__main__":
                 mean_action_time_a1 = sum_action_duration[0] / num_games
                 mean_action_time_a2 = sum_action_duration[1] / num_games
 
-                TensorboardInstrumentedRunner(agent1(),agent2(9,9)).createStats(score, battle_name, num_games, mean_round_time,
-                                                            mean_action_time_a1, mean_action_time_a2)
+                TensorboardInstrumentedRunner(agent1(), agent2(9, 9)).createStats(agent1.__name__, agent1.__name__,
+                                                                                  score, battle_name, num_games,
+                                                                                  mean_round_time,
+                                                                                  mean_action_time_a1, mean_action_time_a2)
 
             model_dir_root = './models/' + agent1.__name__ + '/vs/' + agent2.__name__
             model_dir_root2 = './models/' + agent2.__name__ + '/vs/' + agent1.__name__
