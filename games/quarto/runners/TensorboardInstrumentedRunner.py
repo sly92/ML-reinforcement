@@ -6,8 +6,18 @@ from pprint import pprint
 
 import tensorflow as tf
 
-from agents import CommandLineAgent, DeepQLearningAgent, MOISMCTSWithRandomRolloutsExpertThenApprenticeAgent, MOISMCTSWithRandomRolloutsAgent, MOISMCTSWithValueNetworkAgent,PPOWithMultipleTrajectoriesMultiOutputsAgent,RandomAgent,RandomRolloutAgent, ReinforceClassicAgent,ReinforceClassicWithMultipleTrajectoriesAgent,TabularQLearningAgent
-
+from agents.DeepQLearningAgent import DeepQLearningAgent
+from agents.CommandLineAgent import CommandLineAgent
+from agents.MOISMCTSWithValueNetworkAgent import MOISMCTSWithValueNetworkAgent
+from agents.MOISMCTSWithRandomRolloutsAgent import MOISMCTSWithRandomRolloutsAgent
+from agents.MOISMCTSWithRandomRolloutsExpertThenApprenticeAgent import MOISMCTSWithRandomRolloutsExpertThenApprenticeAgent
+from agents.PPOWithMultipleTrajectoriesMultiOutputsAgent import PPOWithMultipleTrajectoriesMultiOutputsAgent
+from agents.RandomAgent import RandomAgent
+from agents.RandomRolloutAgent import RandomRolloutAgent
+from agents.RandomAgent import RandomAgent
+from agents.ReinforceClassicAgent import ReinforceClassicAgent
+from agents.ReinforceClassicWithMultipleTrajectoriesAgent import ReinforceClassicWithMultipleTrajectoriesAgent
+from agents.TabularQLearningAgent import TabularQLearningAgent
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
