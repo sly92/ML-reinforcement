@@ -69,6 +69,9 @@ class TensorboardInstrumentedQuartoRunner(GameRunner):
                     (1 if current_player == 0 else -1) * score,
                     terminal)
 
+                self.accumulated_reward_sum[0] = score
+                self.accumulated_reward_sum[1] = -score
+
                 round_step += 1
 
             self.round_duration = time.time() - round_time
