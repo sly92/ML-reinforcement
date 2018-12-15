@@ -120,3 +120,6 @@ class DeepQLearningAgent(Agent):
         if self.print_error and self.learn_steps % self.print_error_every == 0:
             # print(self.accumulated_error / self.learn_steps)
             self.accumulated_error = 0
+
+        def __repr__(self):
+            return "DeepQLearningAgent"

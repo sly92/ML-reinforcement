@@ -139,45 +139,66 @@ class TensorboardInstrumentedRunner(GameRunner):
         return tuple(self.score_history), self.round_duration_sum, self.mean_action_duration_sum
 
 
+    def createStats(self, score, bn, ng, mrt, mat1, mat2):
+        print('Score :', score)
+        game_stats = OrderedDict({
+            'game': 'TicTacToe',
+            'battle_name': bn,
+            'num_of_games': ng,
+            'agent1_name': 'RCA',
+            'agent1_wins': score[0],
+            'agent1_win_rate': (score[0] / ng) * 100,
+            'agent2_name': 'RCA',
+            'agent2_wins': score[1],
+            'agent2_win_rate': (score[1] / ng) * 100,
+            'draw_nb': score[2],
+            'draw_rate': (score[2] / ng) * 100,
+            'mean_round_time': mrt,
+            'mean_action_time_a1': mat1,
+            'mean_action_time_a2': mat2
+
+        })
+
+        pprint(game_stats)
+        stats_file = '../../../reinforcement_stats.csv'
+        exists = os.path.isfile(stats_file)
+        with open(stats_file, 'a+') as stats_csv:
+            dw = csv.DictWriter(stats_csv, fieldnames=game_stats.keys())
+            if not exists:
+                dw.writeheader()
+            dw.writerow(game_stats)
+
+
 if __name__ == "__main__":
-    num_games = 100
-    battle_name = 'Random VS Random'
-    score, round_sum_time, sum_action_duration = TensorboardInstrumentedRunner(DeepQLearningAgent(9,9),
-                                                                               DeepQLearningAgent(9, 9),
-                                                                               log_dir_root="./logs/" + battle_name,
-                                                                               print_and_reset_score_history_threshold=1).run(
-        num_games)
-    mean_round_time = round_sum_time / num_games
 
-    mean_action_time_a1 = sum_action_duration[0] / num_games
-    mean_action_time_a2 = sum_action_duration[1] / num_games
+    agentList=[RandomAgent]
+    agentList2=[ReinforceClassicAgent, DeepQLearningAgent]
 
-    # score = BasicTicTacToeRunner(RandomAgent(), RandomAgent(),
-    #                             print_and_reset_score_history_threshold=100).run(num_games)
-    print('Score :', score)
-    game_stats = OrderedDict({
-        'game': 'TicTacToe',
-        'battle_name': battle_name,
-        'num_of_games': num_games,
-        'agent1_name': 'RCA',
-        'agent1_wins': score[0],
-        'agent1_win_rate': (score[0] / num_games) * 100,
-        'agent2_name': 'RCA',
-        'agent2_wins': score[1],
-        'agent2_win_rate': (score[1] / num_games) * 100,
-        'draw_nb': score[2],
-        'draw_rate': (score[2] / num_games) * 100,
-        'mean_round_time': mean_round_time,
-        'mean_action_time_a1': mean_action_time_a1,
-        'mean_action_time_a2': mean_action_time_a2
 
-    })
+    for agent1 in agentList:
+        for agent2 in agentList2:
+            for k in 1000, 10000, 100000, 1000000:
+                num_games = 1000
+                battle_name = agent1.__name__ + ' VS ' + agent2.__name__
+                score, round_sum_time, sum_action_duration = TensorboardInstrumentedRunner(agent1(),
+                                                                                                    agent2(9,9),
+                                                                                                    log_dir_root="./logs/" + battle_name,
+                                                                                                    print_and_reset_score_history_threshold=1000).run(num_games)
+                mean_round_time = round_sum_time / num_games
+                mean_action_time_a1 = sum_action_duration[0] / num_games
+                mean_action_time_a2 = sum_action_duration[1] / num_games
 
-    pprint(game_stats)
-    stats_file = '../../../reinforcement_stats.csv'
-    exists = os.path.isfile(stats_file)
-    with open(stats_file, 'a+') as stats_csv:
-        dw = csv.DictWriter(stats_csv, fieldnames=game_stats.keys())
-        if not exists:
-            dw.writeheader()
-        dw.writerow(game_stats)
+                TensorboardInstrumentedRunner(agent1(),agent2(9,9)).createStats(score, battle_name, num_games, mean_round_time,
+                                                            mean_action_time_a1, mean_action_time_a2)
+
+            model_dir_root = './models/' + agent1.__name__ + '/vs/' + agent2.__name__
+            model_dir_root2 = './models/' + agent2.__name__ + '/vs/' + agent1.__name__
+            if not os.path.exists(model_dir_root2):
+                os.makedirs(model_dir_root2)
+
+            filepath = model_dir_root2 + '/model_' + agent1.__name__ + '_vs_' + agent2.__name__ + '.h5';
+            if agent2==DeepQLearningAgent:
+                agent2(9,9).Q.save(filepath)
+            else:
+                agent2(9,9).brain.model.save(filepath)
+

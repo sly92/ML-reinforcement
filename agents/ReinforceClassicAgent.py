@@ -104,3 +104,6 @@ class ReinforceClassicAgent(Agent):
 
             self.brain.train_policies(states, actions, advantages)
             self.episode_buffer = []
+
+        def __repr__(self):
+            return "Reinforce Classic Agent"
