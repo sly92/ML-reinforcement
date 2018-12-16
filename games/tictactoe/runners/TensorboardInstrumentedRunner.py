@@ -4,11 +4,14 @@ import time
 import re
 from collections import OrderedDict
 from pprint import pprint
+import datetime
+
 
 import tensorflow as tf
 from keras.models import model_from_json
 from keras.models import load_model
 
+from games.tictactoe.runners.SafeTicTacToeRunner import SafeTicTacToeRunner
 from agents.DeepQLearningAgent import DeepQLearningAgent
 from agents.CommandLineAgent import CommandLineAgent
 from agents.MOISMCTSWithValueNetworkAgent import MOISMCTSWithValueNetworkAgent
@@ -86,7 +89,6 @@ class TensorboardInstrumentedRunner(GameRunner):
                 self.agents[current_player].observe(
                     (1 if current_player == 0 else -1) * score,
                     terminal)
-
                 round_step += 1
 
             self.round_duration = time.time() - round_time
@@ -137,7 +139,6 @@ class TensorboardInstrumentedRunner(GameRunner):
                             self.stuck_on_same_score >= self.replace_player1_with_commandline_after_similar_results):
                         self.agents = (CommandLineAgent(), self.agents[1])
                         self.stuck_on_same_score = 0
-
         return tuple(self.score_history), self.round_duration_sum, self.mean_action_duration_sum
 
     def createStats(self, a1, a2, score, bn, ng, mrt, mat1, mat2):
@@ -189,8 +190,25 @@ if __name__ == "__main__":
     # print(BasicTicTacToeRunner(ReinforceClassicWithMultipleTrajectoriesAgent(9, 9), RandomAgent(),
     #                          print_and_reset_score_history_threshold=100).run(100000000000))
 
-  #  agentList=[CommandLineAgent,DeepQLearningAgent,MOISMCTSWithRandomRolloutsExpertThenApprenticeAgent,MOISMCTSWithRandomRolloutsAgent,MOISMCTSWithValueNetworkAgent,PPOWithMultipleTrajectoriesMultiOutputsAgent,RandomAgent,RandomRolloutAgent,ReinforceClassicWithMultipleTrajectoriesAgent,ReinforceClassicAgent,TabularQLearningAgent]
-    agentList = ["RandomAgent()", "ReinforceClassicAgent(9,9)", "DeepQLearningAgent(9,9)"]
+    # A faire
+    #
+    # - DoubleDeepQLearning
+    # - DoubleDeepQLearningWithExperienceReplay
+    # - DoubleDeepQLearningWithPrioritizedExperienceReplay
+    # - REINFORCE with mean baseline
+    # - REINFORCE with Baseline Learned by a Critic
+
+    agentList = ["RandomAgent()",
+                 "RandomRolloutAgent(3, SafeTicTacToeRunner(RandomAgent(), RandomAgent()))",
+                 "TabularQLearningAgent()",
+                 "DeepQLearningAgent(9,9)",
+                 "ReinforceClassicAgent(9,9)",
+                 "ReinforceClassicWithMultipleTrajectoriesAgent(9,9)",
+                 "PPOWithMultipleTrajectoriesMultiOutputsAgent(9,9)",
+                 "MOISMCTSWithValueNetworkAgent(100,9,2)",
+                 "MOISMCTSWithRandomRolloutsAgent(100, SafeTicTacToeRunner(RandomAgent(), RandomAgent()))",
+                 "MOISMCTSWithRandomRolloutsExpertThenApprenticeAgent(100, SafeTicTacToeRunner(RandomAgent(), RandomAgent()),9,9)"
+                 ]
 
     for i in range(len(agentList)):
         for j in range(i, len(agentList)):

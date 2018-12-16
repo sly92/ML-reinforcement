@@ -186,7 +186,7 @@ if __name__ == "__main__":
                 agent1 = agentList[i]
                 agent2 = agentList[j]
 
-                num_games = 100
+                num_games = 100000
                 a1_name = re.match("[A-Za-z]+", agent1).group()
                 a2_name = re.match("[A-Za-z]+", agent2).group()
 
