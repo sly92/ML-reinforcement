@@ -68,31 +68,25 @@ class TensorboardInstrumentedRunner(GameRunner):
                                                              action_ids)
                     action_time = time.time() - action_time
                     self.action_duration_sum[current_player] += action_time
-                else:
-                    action = self.agents[current_player].act(current_player,
-                                                             info_state,
-                                                             action_ids)
+
                 # WARNING : Two Players Zero Sum Game Hypothesis
                 (gs, score, terminal) = gs.step(current_player, action)
                 self.agents[current_player].observe(
                     (1 if current_player == 0 else -1) * score,
                     terminal)
 
-                self.accumulated_reward_sum[0] = score
-                self.accumulated_reward_sum[1] = -score
-
                 round_step += 1
 
-            self.round_duration = time.time() - round_time
-            self.round_duration_sum += self.round_duration
-            self.mean_action_duration = (
-                self.action_duration_sum[0] / round_step, self.action_duration_sum[1] / round_step)
-            self.mean_action_duration_sum += (self.mean_action_duration[0], self.mean_action_duration[1])
-            self.score_history += (1 if score == 1 else 0, 1 if score == -1 else 0, 1 if score == 0 else 0)
-            other_player = (current_player + 1) % 2
-            self.agents[other_player].observe(
-                (1 if other_player == 0 else -1) * score,
-                terminal)
+                self.round_duration = time.time() - round_time
+                self.round_duration_sum += self.round_duration
+                self.mean_action_duration = (
+                    self.action_duration_sum[0] / round_step, self.action_duration_sum[1] / round_step)
+                self.mean_action_duration_sum += (self.mean_action_duration[0], self.mean_action_duration[1])
+                self.score_history += (1 if score == 1 else 0, 1 if score == -1 else 0, 1 if score == 0 else 0)
+                other_player = (current_player + 1) % 2
+                self.agents[other_player].observe(
+                    (1 if other_player == 0 else -1) * score,
+                    terminal)
 
             self.writer.add_summary(tf.Summary(
                 value=[

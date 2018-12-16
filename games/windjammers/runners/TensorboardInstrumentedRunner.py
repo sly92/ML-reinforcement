@@ -51,7 +51,6 @@ class TensorboardInstrumentedRunner(GameRunner):
         while round_id < max_rounds or round_id == -1:
             gs = initial_game_state.copy_game_state()
             terminal = False
-            round_time = 0.0
             round_step = 0
             self.mean_action_duration = {0: 0.0, 1: 0.0}
             self.action_duration_sum = {0: 0.0, 1: 0.0}
@@ -72,31 +71,25 @@ class TensorboardInstrumentedRunner(GameRunner):
                                                              action_ids)
                     action_time = time.time() - action_time
                     self.action_duration_sum[current_player] += action_time
-                else:
-                    action = self.agents[current_player].act(current_player,
-                                                             info_state,
-                                                             action_ids)
-                    # WARNING : Two Players Zero Sum Game Hypothesis
+
+                # WARNING : Two Players Zero Sum Game Hypothesis
                 (gs, score, terminal) = gs.step(current_player, action)
                 self.agents[current_player].observe(
                     (1 if current_player == 0 else -1) * score,
                     terminal)
 
-                self.accumulated_reward_sum[0] = score
-                self.accumulated_reward_sum[1] = -score
-
                 round_step += 1
 
-            self.round_duration = time.time() - round_time
-            self.round_duration_sum += self.round_duration
-            self.mean_action_duration = (
-                self.action_duration_sum[0] / round_step, self.action_duration_sum[1] / round_step)
-            self.mean_action_duration_sum += (self.mean_action_duration[0], self.mean_action_duration[1])
-            self.score_history += (score if score > 0 else 0.0, -score if score < 0 else 0.0, 0)
-            other_player = (current_player + 1) % 2
-            self.agents[other_player].observe(
-                (1 if other_player == 0 else -1) * score,
-                terminal)
+                self.round_duration = time.time() - round_time
+                self.round_duration_sum += self.round_duration
+                self.mean_action_duration = (
+                    self.action_duration_sum[0] / round_step, self.action_duration_sum[1] / round_step)
+                self.mean_action_duration_sum += (self.mean_action_duration[0], self.mean_action_duration[1])
+                self.score_history += (score if score > 0 else 0.0, -score if score < 0 else 0.0, 0)
+                other_player = (current_player + 1) % 2
+                self.agents[other_player].observe(
+                    (1 if other_player == 0 else -1) * score,
+                    terminal)
 
             self.writer.add_summary(tf.Summary(
                 value=[
@@ -110,10 +103,10 @@ class TensorboardInstrumentedRunner(GameRunner):
                                      simple_value=self.round_duration),
 
                     tf.Summary.Value(tag="agent1_accumulated_reward",
-                                     simple_value=self.accumulated_reward_sum[0]),
+                                     simple_value=self.score_history[0]),
 
                     tf.Summary.Value(tag="agent2_accumulated_reward",
-                                     simple_value=self.accumulated_reward_sum[1])
+                                     simple_value=self.score_history[1])
 
                 ],
             ), round_id)
