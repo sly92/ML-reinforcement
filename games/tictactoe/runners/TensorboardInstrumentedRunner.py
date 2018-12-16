@@ -171,24 +171,6 @@ class TensorboardInstrumentedRunner(GameRunner):
             dw.writerow(game_stats)
 
 if __name__ == "__main__":
-    # print("Rdm vs Rdm")
-    # print(BasicTicTacToeRunner(RandomAgent(),
-    #                            RandomAgent(),
-
-    #                            print_and_reset_score_history_threshold=100).run(1000000))
-
-    # print("Rdm vs ReinforceMonteCarloEpisodicAgent (should be around 80% wins for player 2)")
-    # print(BasicTicTacToeRunner(RandomRolloutAgent(3, BasicTicTacToeRunner(RandomAgent(), RandomAgent())),
-    #                            ReinforceMonteCarloEpisodicAgent(9, 9, lr=0.001, gamma=0.9, num_layers=5,
-    #                                                             num_hidden_per_layer=64),
-    #                            print_and_reset_score_history_threshold=100).run(100000))
-
-    # print("Rdm vs ReinforceMonteCarloEpisodicAgent (should be around 80% wins for player 2)")
-    # print(BasicTicTacToeRunner(CommandLineAgent(), CommandLineAgent(),
-    #                            print_and_reset_score_history_threshold=100).run(100000000))
-
-    # print(BasicTicTacToeRunner(ReinforceClassicWithMultipleTrajectoriesAgent(9, 9), RandomAgent(),
-    #                          print_and_reset_score_history_threshold=100).run(100000000000))
 
     # A faire
     #
@@ -217,7 +199,7 @@ if __name__ == "__main__":
                 agent1 = agentList[i]
                 agent2 = agentList[j]
 
-                num_games = 100
+                num_games = 1000
                 a1_name = re.match("[A-Za-z]+", agent1).group()
                 a2_name = re.match("[A-Za-z]+", agent2).group()
 
