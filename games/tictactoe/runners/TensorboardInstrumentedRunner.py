@@ -197,28 +197,28 @@ if __name__ == "__main__":
     for i in range(len(agentList)):
         for j in range(i, len(agentList)):
             if i != j:
-            # for k in 1000, 10000, 100000, 1000000:
-            agent1 = agentList[i]
-            agent2 = agentList[j]
+                # for k in 1000, 10000, 100000, 1000000:
+                agent1 = agentList[i]
+                agent2 = agentList[j]
 
-            num_games = 100
-            a1_name = re.match("[A-Za-z]+", agent1).group()
-            a2_name = re.match("[A-Za-z]+", agent2).group()
+                num_games = 100
+                a1_name = re.match("[A-Za-z]+", agent1).group()
+                a2_name = re.match("[A-Za-z]+", agent2).group()
 
-            battle_name = a1_name + ' VS ' + a2_name
+                battle_name = a1_name + ' VS ' + a2_name
 
-            score, round_sum_time, sum_action_duration = TensorboardInstrumentedRunner(eval(agent1),
-                                                                                       eval(agent2),
-                                                                                       log_dir_root="./logs/" + battle_name,
-                                                                                       print_and_reset_score_history_threshold=1000).run(
-                num_games)
-            mean_round_time = round_sum_time / num_games
-            mean_action_time_a1 = sum_action_duration[0] / num_games
-            mean_action_time_a2 = sum_action_duration[1] / num_games
+                score, round_sum_time, sum_action_duration = TensorboardInstrumentedRunner(eval(agent1),
+                                                                                           eval(agent2),
+                                                                                           log_dir_root="./logs/" + battle_name,
+                                                                                           print_and_reset_score_history_threshold=1000).run(
+                    num_games)
+                mean_round_time = round_sum_time / num_games
+                mean_action_time_a1 = sum_action_duration[0] / num_games
+                mean_action_time_a2 = sum_action_duration[1] / num_games
 
-            TensorboardInstrumentedRunner(eval(agent1), eval(agent2)).createStats(a1_name, a2_name,
-                                                                                  score, battle_name, num_games,
-                                                                                  mean_round_time,
-                                                                                  mean_action_time_a1,
-                                                                                  mean_action_time_a2)
+                TensorboardInstrumentedRunner(eval(agent1), eval(agent2)).createStats(a1_name, a2_name,
+                                                                                      score, battle_name, num_games,
+                                                                                      mean_round_time,
+                                                                                      mean_action_time_a1,
+                                                                                      mean_action_time_a2)
         i += 1
