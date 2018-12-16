@@ -179,8 +179,6 @@ if __name__ == "__main__":
 
     agentList = ["RandomAgent()", "ReinforceClassicAgent(9,9)", "DeepQLearningAgent(9,9)"]
 
-    count = 0
-
     for i in range(len(agentList)):
         for j in range(i, len(agentList)):
             if i != j:
