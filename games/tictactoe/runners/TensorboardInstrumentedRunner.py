@@ -214,7 +214,7 @@ if __name__ == "__main__":
             if not os.path.exists(model_dir_root2):
                 os.makedirs(model_dir_root2)
 
-            filepath = model_dir_root2 + '/model_' + agent1.__name__ + '_vs_' + agent2.__name__ + '.h5';
+            filepath = model_dir_root2 + '/model_' + agent1.__name__ + '_vs_' + agent2.__name__ + '.h5'
             if agent2==DeepQLearningAgent:
                 agent2(9,9).Q.save(filepath)
             else:
