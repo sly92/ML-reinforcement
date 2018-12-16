@@ -186,9 +186,10 @@ if __name__ == "__main__":
                 num_games = k
                 battle_name = agent1.__name__ + ' VS ' + agent2.__name__
                 score, round_sum_time, sum_action_duration = TensorboardInstrumentedRunner(agent1(),
-                                                                                                    agent2(9,9),
-                                                                                                    log_dir_root="./logs/" + battle_name,
-                                                                                                    print_and_reset_score_history_threshold=1000).run(num_games)
+                                                                                           agent2(16, 16),
+                                                                                           log_dir_root="./logs/" + battle_name,
+                                                                                           print_and_reset_score_history_threshold=1000).run(
+                    num_games)
                 mean_round_time = round_sum_time / num_games
                 mean_action_time_a1 = sum_action_duration[0] / num_games
                 mean_action_time_a2 = sum_action_duration[1] / num_games
@@ -203,10 +204,8 @@ if __name__ == "__main__":
             if not os.path.exists(model_dir_root2):
                 os.makedirs(model_dir_root2)
 
-            filepath = model_dir_root2 + '/model_' + agent1.__name__ + '_vs_' + agent2.__name__ + '.h5';
+            filepath = model_dir_root2 + '/model_' + agent1.__name__ + '_vs_' + agent2.__name__ + '.h5'
             if agent2==DeepQLearningAgent:
-                agent2(9,9).Q.save(filepath)
+                agent2(16, 16).Q.save(filepath)
             else:
-                agent2(9,9).brain.model.save(filepath)
-
-
+                agent2(16, 16).brain.model.save(filepath)

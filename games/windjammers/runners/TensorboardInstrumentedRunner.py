@@ -80,6 +80,9 @@ class TensorboardInstrumentedRunner(GameRunner):
 
                 round_step += 1
 
+                self.accumulated_reward_sum[0] = score
+                self.accumulated_reward_sum[1] = -score
+
                 self.round_duration = time.time() - round_time
                 self.round_duration_sum += self.round_duration
                 self.mean_action_duration = (
@@ -103,10 +106,10 @@ class TensorboardInstrumentedRunner(GameRunner):
                                      simple_value=self.round_duration),
 
                     tf.Summary.Value(tag="agent1_accumulated_reward",
-                                     simple_value=self.score_history[0]),
+                                     simple_value=self.accumulated_reward_sum[0]),
 
                     tf.Summary.Value(tag="agent2_accumulated_reward",
-                                     simple_value=self.score_history[1])
+                                     simple_value=self.accumulated_reward_sum[1])
 
                 ],
             ), round_id)
@@ -115,7 +118,7 @@ class TensorboardInstrumentedRunner(GameRunner):
                 round_id += 1
                 if self.print_and_reset_score_history_threshold is not None and \
                         round_id % self.print_and_reset_score_history_threshold == 0:
-                    print(self.score_history / self.print_and_reset_score_history_threshold)
+                    # print(self.score_history / self.print_and_reset_score_history_threshold)
                     if self.prev_history is not None and \
                             self.score_history[0] == self.prev_history[0] and \
                             self.score_history[1] == self.prev_history[1] and \
@@ -190,7 +193,7 @@ if __name__ == "__main__":
             if not os.path.exists(model_dir_root2):
                 os.makedirs(model_dir_root2)
 
-            filepath = model_dir_root2 + '/model_' + agent1.__name__ + '_vs_' + agent2.__name__ + '.h5';
+            filepath = model_dir_root2 + '/model_' + agent1.__name__ + '_vs_' + agent2.__name__ + '.h5'
             if agent2==DeepQLearningAgent:
                 agent2(9,9).Q.save(filepath)
             else:
