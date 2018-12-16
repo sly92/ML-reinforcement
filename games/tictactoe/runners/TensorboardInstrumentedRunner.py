@@ -1,6 +1,7 @@
 import csv
 import os
 import time
+import re
 from collections import OrderedDict
 from pprint import pprint
 
@@ -52,6 +53,9 @@ class TensorboardInstrumentedRunner(GameRunner):
         self.round_duration_sum = 0.0
         self.mean_action_duration_sum = np.array((0.0, 0.0))
         self.score_history = np.array((0, 0, 0))
+        score = 0
+        current_player = 0
+
         while round_id < max_rounds or round_id == -1:
             gs = initial_game_state.copy_game_state()
             terminal = False
@@ -84,16 +88,17 @@ class TensorboardInstrumentedRunner(GameRunner):
                     terminal)
 
                 round_step += 1
-                self.round_duration = time.time() - round_time
-                self.round_duration_sum += self.round_duration
-                self.mean_action_duration = (
-                    self.action_duration_sum[0] / round_step, self.action_duration_sum[1] / round_step)
-                self.mean_action_duration_sum += (self.mean_action_duration[0], self.mean_action_duration[1])
-                self.score_history += (1 if score == 1 else 0, 1 if score == -1 else 0, 1 if score == 0 else 0)
-                other_player = (current_player + 1) % 2
-                self.agents[other_player].observe(
-                    (1 if other_player == 0 else -1) * score,
-                    terminal)
+
+            self.round_duration = time.time() - round_time
+            self.round_duration_sum += self.round_duration
+            self.mean_action_duration = (
+                self.action_duration_sum[0] / round_step, self.action_duration_sum[1] / round_step)
+            self.mean_action_duration_sum += (self.mean_action_duration[0], self.mean_action_duration[1])
+            self.score_history += (1 if score == 1 else 0, 1 if score == -1 else 0, 1 if score == 0 else 0)
+            other_player = (current_player + 1) % 2
+            self.agents[other_player].observe(
+                (1 if other_player == 0 else -1) * score,
+                terminal)
 
             self.writer.add_summary(tf.Summary(
                 value=[
@@ -185,18 +190,25 @@ if __name__ == "__main__":
     #                          print_and_reset_score_history_threshold=100).run(100000000000))
 
   #  agentList=[CommandLineAgent,DeepQLearningAgent,MOISMCTSWithRandomRolloutsExpertThenApprenticeAgent,MOISMCTSWithRandomRolloutsAgent,MOISMCTSWithValueNetworkAgent,PPOWithMultipleTrajectoriesMultiOutputsAgent,RandomAgent,RandomRolloutAgent,ReinforceClassicWithMultipleTrajectoriesAgent,ReinforceClassicAgent,TabularQLearningAgent]
-    agentList = [RandomAgent]
-    agentList2=[ReinforceClassicAgent, DeepQLearningAgent]
+    agentList = ["RandomAgent()", "ReinforceClassicAgent(9,9)", "DeepQLearningAgent(9,9)"]
 
+    count = 0
 
-
-    for agent1 in agentList:
-        for agent2 in agentList2:
+    for i in range(len(agentList)):
+        for j in range(i, len(agentList)):
+            if i != j:
             # for k in 1000, 10000, 100000, 1000000:
-            num_games = 1000000
-            battle_name = agent1.__name__ + ' VS ' + agent2.__name__
-            score, round_sum_time, sum_action_duration = TensorboardInstrumentedRunner(agent1(),
-                                                                                       agent2(9, 9),
+            agent1 = agentList[i]
+            agent2 = agentList[j]
+
+            num_games = 100
+            a1_name = re.match("[A-Za-z]+", agent1).group()
+            a2_name = re.match("[A-Za-z]+", agent2).group()
+
+            battle_name = a1_name + ' VS ' + a2_name
+
+            score, round_sum_time, sum_action_duration = TensorboardInstrumentedRunner(eval(agent1),
+                                                                                       eval(agent2),
                                                                                        log_dir_root="./logs/" + battle_name,
                                                                                        print_and_reset_score_history_threshold=1000).run(
                 num_games)
@@ -204,18 +216,9 @@ if __name__ == "__main__":
             mean_action_time_a1 = sum_action_duration[0] / num_games
             mean_action_time_a2 = sum_action_duration[1] / num_games
 
-            TensorboardInstrumentedRunner(agent1(), agent2(9, 9)).createStats(agent1.__name__, agent1.__name__,
-                                                                              score, battle_name, num_games,
-                                                                              mean_round_time,
-                                                                              mean_action_time_a1, mean_action_time_a2)
-
-            model_dir_root = './models/' + agent1.__name__ + '/vs/' + agent2.__name__
-            model_dir_root2 = './models/' + agent2.__name__ + '/vs/' + agent1.__name__
-            if not os.path.exists(model_dir_root2):
-                os.makedirs(model_dir_root2)
-
-            filepath = model_dir_root2 + '/model_' + agent1.__name__ + '_vs_' + agent2.__name__ + '.h5'
-            if agent2==DeepQLearningAgent:
-                agent2(9,9).Q.save(filepath)
-            else:
-                agent2(9,9).brain.model.save(filepath)
+            TensorboardInstrumentedRunner(eval(agent1), eval(agent2)).createStats(a1_name, a2_name,
+                                                                                  score, battle_name, num_games,
+                                                                                  mean_round_time,
+                                                                                  mean_action_time_a1,
+                                                                                  mean_action_time_a2)
+        i += 1
