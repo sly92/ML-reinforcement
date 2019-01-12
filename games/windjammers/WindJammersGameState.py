@@ -234,6 +234,9 @@ class WindJammersGameState(GameState):
         gs.current_player = self.current_player
         return gs
 
+    def get_current_scores(self):
+        winner, terminal = self.compute_current_score_and_end_game_more_efficient()
+        return np.array([winner, -winner]), terminal
 
 if __name__ == "__main__":
     gs = WindJammersGameState()

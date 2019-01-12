@@ -26,11 +26,6 @@ from agents.ReinforceClassicWithMultipleTrajectoriesAgent import ReinforceClassi
 from agents.TabularQLearningAgent import TabularQLearningAgent
 
 
-
-
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
-
 from environments import Agent
 from environments.GameRunner import GameRunner
 from games.tictactoe.TicTacToeGameState import TicTacToeGameState
@@ -91,16 +86,17 @@ class TensorboardInstrumentedRunner(GameRunner):
                     terminal)
                 round_step += 1
 
-            self.round_duration = time.time() - round_time
-            self.round_duration_sum += self.round_duration
-            self.mean_action_duration = (
-                self.action_duration_sum[0] / round_step, self.action_duration_sum[1] / round_step)
-            self.mean_action_duration_sum += (self.mean_action_duration[0], self.mean_action_duration[1])
-            self.score_history += (1 if score == 1 else 0, 1 if score == -1 else 0, 1 if score == 0 else 0)
-            other_player = (current_player + 1) % 2
-            self.agents[other_player].observe(
-                (1 if other_player == 0 else -1) * score,
-                terminal)
+                if terminal:
+                    self.round_duration = time.time() - round_time
+                    self.round_duration_sum += self.round_duration
+                    self.mean_action_duration = (
+                        self.action_duration_sum[0] / round_step, self.action_duration_sum[1] / round_step)
+                    self.mean_action_duration_sum += (self.mean_action_duration[0], self.mean_action_duration[1])
+                    self.score_history += (1 if score == 1 else 0, 1 if score == -1 else 0, 1 if score == 0 else 0)
+                    other_player = (current_player + 1) % 2
+                    self.agents[other_player].observe(
+                        (1 if other_player == 0 else -1) * score,
+                        terminal)
 
             self.writer.add_summary(tf.Summary(
                 value=[

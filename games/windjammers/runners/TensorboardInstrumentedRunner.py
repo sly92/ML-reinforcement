@@ -1,12 +1,11 @@
 import csv
 import re
 import os
-import time
+from time import time
 from collections import OrderedDict
 from pprint import pprint
 
-import tensorflow as tf
-
+from games.windjammers.runners.SafeWindJammersRunner import SafeWindJammersRunner
 from agents.DeepQLearningAgent import DeepQLearningAgent
 from agents.CommandLineAgent import CommandLineAgent
 from agents.MOISMCTSWithValueNetworkAgent import MOISMCTSWithValueNetworkAgent
@@ -19,28 +18,23 @@ from agents.RandomAgent import RandomAgent
 from agents.ReinforceClassicAgent import ReinforceClassicAgent
 from agents.ReinforceClassicWithMultipleTrajectoriesAgent import ReinforceClassicWithMultipleTrajectoriesAgent
 from agents.TabularQLearningAgent import TabularQLearningAgent
+from agents.TabularQLearningAgent import TabularQLearningAgent
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 from agents.CommandLineAgent import CommandLineAgent
-from agents.RandomAgent import RandomAgent
 from environments import Agent
 from environments.GameRunner import GameRunner
+import tensorflow as tf
 from games.windjammers.WindJammersGameState import WindJammersGameState
 import numpy as np
 
 
 class TensorboardInstrumentedRunner(GameRunner):
 
-    def __init__(self, agent1: Agent, agent2: Agent,
-                 print_and_reset_score_history_threshold=None,
-                 replace_player1_with_commandline_after_similar_results=None, log_dir_root="./logs/"):
+    def __init__(self, agent1: Agent, agent2: Agent, log_dir_root="./logs/"):
         self.agents = (agent1, agent2)
-        self.stuck_on_same_score = 0
-        self.prev_history = None
-        self.print_and_reset_score_history_threshold = print_and_reset_score_history_threshold
-        self.replace_player1_with_commandline_after_similar_results = replace_player1_with_commandline_after_similar_results
         self.writer = tf.summary.FileWriter(log_dir_root)
 
     def run(self, max_rounds: int = -1,
@@ -48,7 +42,7 @@ class TensorboardInstrumentedRunner(GameRunner):
         round_id = 0
         self.round_duration_sum = 0.0
         self.mean_action_duration_sum = np.array((0.0, 0.0))
-        self.score_history = np.array((0, 0, 0.0))
+
         while round_id < max_rounds or round_id == -1:
             gs = initial_game_state.copy_game_state()
             terminal = False
@@ -58,39 +52,34 @@ class TensorboardInstrumentedRunner(GameRunner):
             self.accumulated_reward_sum = {0: 0.0, 1: 0.0}
 
             while not terminal:
-                # sleep(0.016)
-                # print(gs)
-                round_time = time.time()
+                round_time = time()
                 current_player = gs.get_current_player_id()
                 action = 0
+
                 if current_player != -1:
                     action_ids = gs.get_available_actions_id_for_player(current_player)
                     info_state = gs.get_information_state_for_player(current_player)
-                    action_time = time.time()
+                    action_time = time()
                     action = self.agents[current_player].act(current_player,
                                                              info_state,
                                                              action_ids)
-                    action_time = time.time() - action_time
+                    action_time = time() - action_time
                     self.action_duration_sum[current_player] += action_time
 
                 # WARNING : Two Players Zero Sum Game Hypothesis
                 (gs, score, terminal) = gs.step(current_player, action)
-                self.agents[current_player].observe(
-                    (1 if current_player == 0 else -1) * score,
-                    terminal)
+                self.agents[0].observe(score, terminal)
+                self.agents[1].observe(-score, terminal)
 
+                self.accumulated_reward_sum[0] = score
+                self.accumulated_reward_sum[1] = -score
                 round_step += 1
 
-            self.round_duration = time.time() - round_time
+            self.round_duration = time() - round_time
             self.round_duration_sum += self.round_duration
             self.mean_action_duration = (
                 self.action_duration_sum[0] / round_step, self.action_duration_sum[1] / round_step)
             self.mean_action_duration_sum += (self.mean_action_duration[0], self.mean_action_duration[1])
-            self.score_history += (score if score > 0 else 0.0, -score if score < 0 else 0.0, 0)
-            other_player = (current_player + 1) % 2
-            self.agents[other_player].observe(
-                (1 if other_player == 0 else -1) * score,
-                terminal)
 
             self.writer.add_summary(tf.Summary(
                 value=[
@@ -104,33 +93,18 @@ class TensorboardInstrumentedRunner(GameRunner):
                                      simple_value=self.round_duration),
 
                     tf.Summary.Value(tag="agent1_accumulated_reward",
-                                     simple_value=self.score_history[0]),
+                                     simple_value=self.accumulated_reward_sum[0]),
 
                     tf.Summary.Value(tag="agent2_accumulated_reward",
-                                     simple_value=self.score_history[1])
+                                     simple_value=self.accumulated_reward_sum[1])
 
                 ],
             ), round_id)
 
             if round_id != -1:
                 round_id += 1
-                if self.print_and_reset_score_history_threshold is not None and \
-                        round_id % self.print_and_reset_score_history_threshold == 0:
-                    # print(self.score_history / self.print_and_reset_score_history_threshold)
-                    if self.prev_history is not None and \
-                            self.score_history[0] == self.prev_history[0] and \
-                            self.score_history[1] == self.prev_history[1] and \
-                            self.score_history[2] == self.prev_history[2]:
-                        self.stuck_on_same_score += 1
-                    else:
-                        self.prev_history = self.score_history
-                        self.stuck_on_same_score = 0
-                    if (self.replace_player1_with_commandline_after_similar_results is not None and
-                            self.stuck_on_same_score >= self.replace_player1_with_commandline_after_similar_results):
-                        self.agents = (CommandLineAgent(), self.agents[1])
-                        self.stuck_on_same_score = 0
-                    # score_history = np.array((0, 0, 0.0))
-        return tuple(self.score_history), self.round_duration_sum, self.mean_action_duration_sum
+
+        return tuple(self.accumulated_reward_sum), self.round_duration_sum, self.mean_action_duration_sum
 
     def createStats(self, a1, a2, score, bn, ng, mrt, mat1, mat2):
         print('Score :', score)
@@ -164,7 +138,20 @@ class TensorboardInstrumentedRunner(GameRunner):
 
 if __name__ == "__main__":
 
-    agentList = ["RandomAgent()", "ReinforceClassicAgent(9,9)", "DeepQLearningAgent(9,9)"]
+    agentList2 = ["RandomAgent()",
+                  "RandomRolloutAgent(3, SafeWindJammersRunner(RandomAgent(), RandomAgent()))",
+                  "TabularQLearningAgent()",
+                  "DeepQLearningAgent(8,12)",
+                  "ReinforceClassicAgent(8,12)",
+                  "ReinforceClassicWithMultipleTrajectoriesAgent(8,12)",
+                  "PPOWithMultipleTrajectoriesMultiOutputsAgent(8,12)",
+                  "MOISMCTSWithValueNetworkAgent(100,8,12)",
+                  "MOISMCTSWithRandomRolloutsAgent(100, SafeTicTacToeRunner(RandomAgent(), RandomAgent()))",
+                  "MOISMCTSWithRandomRolloutsExpertThenApprenticeAgent(100, SafeTicTacToeRunner(RandomAgent(), RandomAgent()),9,9)"
+                  ]
+    agentList = ["RandomAgent()",
+                 "DeepQLearningAgent(8,12)",
+                 ]
 
     for i in range(len(agentList)):
         for j in range(i, len(agentList)):
@@ -181,8 +168,7 @@ if __name__ == "__main__":
 
                 score, round_sum_time, sum_action_duration = TensorboardInstrumentedRunner(eval(agent1),
                                                                                            eval(agent2),
-                                                                                           log_dir_root="./logs/" + battle_name,
-                                                                                           print_and_reset_score_history_threshold=1000).run(
+                                                                                           log_dir_root="./logs/" + battle_name).run(
                     num_games)
                 mean_round_time = round_sum_time / num_games
                 mean_action_time_a1 = sum_action_duration[0] / num_games

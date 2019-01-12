@@ -68,7 +68,7 @@ class BasicWindJammersRunner(GameRunner):
                             self.stuck_on_same_score >= self.replace_player1_with_commandline_after_similar_results):
                         self.agents = (CommandLineAgent(), self.agents[1])
                         self.stuck_on_same_score = 0
-                    score_history = np.array((0, 0, 0.0))
+                    # score_history = np.array((0, 0, 0.0))
         return tuple(score_history)
 
 
