@@ -32,7 +32,6 @@ class SafeWindJammersRunner(GameRunner):
                                                              info_state,
                                                              action_ids)
 
-                # WARNING : Two Players Zero Sum Game Hypothesis
                 (gs, score, terminal) = gs.step(current_player, action)
 
                 self.agents[0].observe(score, terminal)
