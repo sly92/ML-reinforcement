@@ -240,5 +240,3 @@ class WindJammersGameState(GameState):
 
 if __name__ == "__main__":
     gs = WindJammersGameState()
-    print(gs.get_available_actions_id_for_player(gs.get_current_player_id()))
-    print(gs)
