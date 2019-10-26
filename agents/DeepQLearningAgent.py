@@ -39,7 +39,6 @@ class DeepQLearningAgent(Agent):
         self.learn_steps = 0
 
     def create_net(self, input_size, action_size, num_layers, num_hidden_per_layer):
-        # input expect batch of input_size-dimensional vector; batch : number of training example for 1 iteration
         input_state = Input(shape=(input_size,))
         input_action = Input(shape=(action_size,))
         inputs = Concatenate()([input_state, input_action])
