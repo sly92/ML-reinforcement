@@ -86,15 +86,10 @@ class QuartoGameState(GameState):
     def get_available_actions_id_for_player(self, player_id: int) -> 'Iterable(int)':
         if player_id != self.current_player:
             return []
-        tmp = list(filter(lambda i: self.board[i // 4][i % 4] == 1, range(0, 16)))
-        print(111111111)
-        print(tmp)
-        tmp2 = np.array(self.pieces)
-        print(222222222)
-        print(tmp2)
-        tmp3 = tmp * tmp2
-        print(tmp3)
-        return tmp3
+        boards_tmp = list(filter(lambda i: self.board[i // 4][i % 4] == 1, range(0, 16)))
+        pieces_tmp = np.array(self.pieces)
+        available_action = boards_tmp * pieces_tmp
+        return available_action
 
     def __str__(self):
         str = ""
@@ -122,11 +117,3 @@ class QuartoGameState(GameState):
 
 if __name__ == "__main__":
     gs = QuartoGameState()
-    current_player = gs.get_current_player_id()
-    print(gs.get_available_actions_id_for_player(current_player))
-    print(gs)
-    gs.step(0, 0)
-    print(gs)
-    gs.step(1, 2)
-    print(gs)
-    gs.step(0, 2)
