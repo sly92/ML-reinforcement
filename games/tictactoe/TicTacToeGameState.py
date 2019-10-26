@@ -152,10 +152,3 @@ class TicTacToeGameState(GameState):
 
 if __name__ == "__main__":
     gs = TicTacToeGameState()
-    print(gs.get_available_actions_id_for_player(gs.get_current_player_id()))
-    print(gs)
-    gs.step(0, 0)
-    print(gs)
-    gs.step(1, 2)
-    print(gs)
-    gs.step(0, 2)
