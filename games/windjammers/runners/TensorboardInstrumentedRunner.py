@@ -66,7 +66,6 @@ class TensorboardInstrumentedRunner(GameRunner):
                     action_time = time() - action_time
                     self.action_duration_sum[current_player] += action_time
 
-                # WARNING : Two Players Zero Sum Game Hypothesis
                 (gs, score, terminal) = gs.step(current_player, action)
                 self.agents[0].observe(score, terminal)
                 self.agents[1].observe(-score, terminal)
