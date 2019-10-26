@@ -31,7 +31,6 @@ class SafeTicTacToeRunner(GameRunner):
                                                          info_state,
                                                          action_ids)
 
-                # WARNING : Two Players Zero Sum Game Hypothesis
                 (gs, score, terminal) = gs.step(current_player, action)
                 self.agents[current_player].observe(
                     (1 if current_player == 0 else -1) * score,
