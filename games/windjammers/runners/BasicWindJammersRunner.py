@@ -77,8 +77,3 @@ if __name__ == "__main__":
     print(BasicWindJammersRunner(RandomAgent(),
                                  RandomAgent(),
                                  print_and_reset_score_history_threshold=10).run(10))
-
-    # print("CommandLine vs CommandLine")
-    # print(BasicWindJammersRunner(CommandLineAgent(),
-    #                              CommandLineAgent(),
-    #                             print_and_reset_score_history_threshold=100).run(100))
