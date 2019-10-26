@@ -78,7 +78,6 @@ class TensorboardInstrumentedRunner(GameRunner):
                     action_time = time.time() - action_time
                     self.action_duration_sum[current_player] += action_time
 
-                # WARNING : Two Players Zero Sum Game Hypothesis
                 (gs, score, terminal) = gs.step(current_player, action)
 
                 self.agents[current_player].observe(
@@ -167,15 +166,7 @@ class TensorboardInstrumentedRunner(GameRunner):
             dw.writerow(game_stats)
 
 if __name__ == "__main__":
-
-    # A faire
-    #
-    # - DoubleDeepQLearning
-    # - DoubleDeepQLearningWithExperienceReplay
-    # - DoubleDeepQLearningWithPrioritizedExperienceReplay
-    # - REINFORCE with mean baseline
-    # - REINFORCE with Baseline Learned by a Critic
-
+    
     agentList = ["RandomAgent()",
                  "RandomRolloutAgent(3, SafeTicTacToeRunner(RandomAgent(), RandomAgent()))",
                  "TabularQLearningAgent()",
