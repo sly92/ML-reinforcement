@@ -15,7 +15,6 @@ from agents.MOISMCTSWithRandomRolloutsExpertThenApprenticeAgent import MOISMCTSW
 from agents.PPOWithMultipleTrajectoriesMultiOutputsAgent import PPOWithMultipleTrajectoriesMultiOutputsAgent
 from agents.RandomAgent import RandomAgent
 from agents.RandomRolloutAgent import RandomRolloutAgent
-from agents.RandomAgent import RandomAgent
 from agents.ReinforceClassicAgent import ReinforceClassicAgent
 from agents.ReinforceClassicWithMultipleTrajectoriesAgent import ReinforceClassicWithMultipleTrajectoriesAgent
 from agents.TabularQLearningAgent import TabularQLearningAgent
@@ -70,7 +69,6 @@ class TensorboardInstrumentedRunner(GameRunner):
                     action_time = time.time() - action_time
                     self.action_duration_sum[current_player] += action_time
 
-                # WARNING : Two Players Zero Sum Game Hypothesis
                 (gs, score, terminal) = gs.step(current_player, action)
                 self.agents[current_player].observe(
                     (1 if current_player == 0 else -1) * score,
@@ -113,7 +111,6 @@ class TensorboardInstrumentedRunner(GameRunner):
                 round_id += 1
                 if self.print_and_reset_score_history_threshold is not None and \
                         round_id % self.print_and_reset_score_history_threshold == 0:
-                    # print(score_history / self.print_and_reset_score_history_threshold)
                     if self.prev_history is not None and \
                             self.score_history[0] == self.prev_history[0] and \
                             self.score_history[1] == self.prev_history[1] and \
@@ -145,7 +142,6 @@ class TensorboardInstrumentedRunner(GameRunner):
             'mean_round_time': mrt,
             'mean_action_time_a1': mat1,
             'mean_action_time_a2': mat2
-
         })
 
         pprint(game_stats)
@@ -158,25 +154,6 @@ class TensorboardInstrumentedRunner(GameRunner):
             dw.writerow(game_stats)
 
 if __name__ == "__main__":
-    # print("Rdm vs Rdm")
-    # print(BasicQuartoRunner(RandomAgent(),
-    #                            RandomAgent(),
-
-    #                            print_and_reset_score_history_threshold=100).run(1000000))
-
-    # print("Rdm vs ReinforceMonteCarloEpisodicAgent (should be around 80% wins for player 2)")
-    # print(BasicQuartoRunner(RandomRolloutAgent(3, BasicQuartoRunner(RandomAgent(), RandomAgent())),
-    #                            ReinforceMonteCarloEpisodicAgent(9, 9, lr=0.001, gamma=0.9, num_layers=5,
-    #                                                             num_hidden_per_layer=64),
-    #                            print_and_reset_score_history_threshold=100).run(100000))
-
-    # print("Rdm vs ReinforceMonteCarloEpisodicAgent (should be around 80% wins for player 2)")
-    # print(BasicQuartoRunner(CommandLineAgent(), CommandLineAgent(),
-    #                            print_and_reset_score_history_threshold=100).run(100000000))
-
-    # print(BasicQuartoRunner(ReinforceClassicWithMultipleTrajectoriesAgent(9, 9), RandomAgent(),
-    #                          print_and_reset_score_history_threshold=100).run(100000000000))
-
     agentList = ["RandomAgent()", "ReinforceClassicAgent(9,9)", "DeepQLearningAgent(9,9)"]
 
     for i in range(len(agentList)):
