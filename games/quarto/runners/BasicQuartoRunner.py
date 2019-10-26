@@ -74,7 +74,6 @@ class BasicQuartoRunner(GameRunner):
 
 
 if __name__ == "__main__":
-    # Should be perfect, but takes time
     print("MOISMCTSWithRandomRolloutsAgent VS RandomAgent")
     print(BasicQuartoRunner(CommandLineAgent(),
                             CommandLineAgent(),
