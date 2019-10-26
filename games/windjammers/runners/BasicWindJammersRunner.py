@@ -1,7 +1,7 @@
 import os
 from time import sleep
 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"  # see issue #152
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 
 from agents.CommandLineAgent import CommandLineAgent
@@ -43,7 +43,6 @@ class BasicWindJammersRunner(GameRunner):
                                                              info_state,
                                                              action_ids)
 
-                # WARNING : Two Players Zero Sum Game Hypothesis
                 (gs, score, terminal) = gs.step(current_player, action)
                 self.agents[0].observe(score, terminal)
                 self.agents[1].observe(-score, terminal)
@@ -68,7 +67,6 @@ class BasicWindJammersRunner(GameRunner):
                             self.stuck_on_same_score >= self.replace_player1_with_commandline_after_similar_results):
                         self.agents = (CommandLineAgent(), self.agents[1])
                         self.stuck_on_same_score = 0
-                    # score_history = np.array((0, 0, 0.0))
         return tuple(score_history)
 
 
